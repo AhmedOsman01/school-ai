@@ -1,4 +1,4 @@
-import { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, Model, Document } from "mongoose";
 import Person from "./Person";
 import type { IStudent } from "@/types";
 
@@ -17,7 +17,9 @@ const studentSchema = new Schema<StudentDocument>({
   status: { type: String, enum: ["active", "suspended", "withdrawn", "graduated"], default: "active" },
 });
 
-// Avoid the "Discriminator with name \"student\" already exists" error during hot reloads
-const Student = Person.discriminators?.student || Person.discriminator("student", studentSchema);
+// Robust model registration for Next.js hot reloads
+const Student = (mongoose.models.student as Model<any>) || 
+                (Person.discriminators?.student as Model<any>) || 
+                Person.discriminator("student", studentSchema);
 
 export default Student;

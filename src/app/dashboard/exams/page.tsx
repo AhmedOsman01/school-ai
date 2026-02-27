@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth } from "@/lib/auth";
-import { Exam, Term, Subject } from "@/models";
+import { Exam } from "@/models";
 import connectDB from "@/lib/db";
 import Link from "next/link";
 import { format } from "date-fns";
@@ -17,7 +18,8 @@ export default async function ExamsPage() {
 
     const exams = await Exam.find(query)
         .populate("term", "nameAr nameEn")
-        .sort({ examDate: -1 });
+        .sort({ examDate: -1 })
+        .lean();
 
     return (
         <div className="container mx-auto p-6 space-y-6">
@@ -34,12 +36,12 @@ export default async function ExamsPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {exams.map((exam) => (
+                {exams.map((exam: any) => (
                     <div key={exam._id.toString()} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                         <div className="p-5">
                             <div className="flex justify-between items-start mb-4">
                                 <span className={`px-2 py-1 rounded-md text-xs font-medium ${exam.examType === 'final' ? 'bg-red-50 text-red-600' :
-                                        exam.examType === 'quiz' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
+                                    exam.examType === 'quiz' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
                                     }`}>
                                     {exam.examType.toUpperCase()}
                                 </span>
@@ -49,7 +51,7 @@ export default async function ExamsPage() {
                             </div>
 
                             <h3 className="text-xl font-bold mb-1 truncate">{exam.nameAr}</h3>
-                            <p className="text-sm text-gray-500 mb-4">{exam.term.nameAr}</p>
+                            <p className="text-sm text-gray-500 mb-4">{exam.term?.nameAr}</p>
 
                             <div className="flex items-center justify-between pt-4 border-t border-gray-50">
                                 <div className="text-sm">

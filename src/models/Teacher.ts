@@ -1,4 +1,4 @@
-import { Schema, Types, Model, Document } from "mongoose";
+import mongoose, { Schema, Types, Model } from "mongoose";
 import Person, { PersonDocument } from "./Person";
 import type { ITeacher } from "@/types";
 
@@ -38,8 +38,9 @@ const TeacherSchema = new Schema<TeacherDocument>({
 TeacherSchema.index({ subjects: 1 });
 TeacherSchema.index({ classGroups: 1 });
 
-const Teacher: Model<TeacherDocument> =
-  (Person.discriminators?.["Teacher"] as Model<TeacherDocument>) ||
-  Person.discriminator<TeacherDocument>("Teacher", TeacherSchema);
+const Teacher: Model<any> =
+  (mongoose.models.teacher as Model<any>) ||
+  (Person.discriminators?.teacher as Model<any>) ||
+  Person.discriminator<TeacherDocument>("teacher", TeacherSchema);
 
 export default Teacher;

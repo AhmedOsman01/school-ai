@@ -44,6 +44,11 @@ async function seed() {
   const StudentExamResult = (await import("../models/StudentExamResult")).default;
   const Bus = (await import("../models/Bus")).default;
   const TransportRoute = (await import("../models/TransportRoute")).default;
+  
+  // Register discriminators explicitly
+  await import("../models/Teacher");
+  await import("../models/Staff");
+  await import("../models/Guardian");
 
   // Clear existing data
   const collections = mongoose.connection.collections;
@@ -144,6 +149,7 @@ async function seed() {
     phoneWa: "+201221234567",
     gender: "female",
     role: "teacher",
+    employeeId: "EMP-001",
   });
 
   await User.create({

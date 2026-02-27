@@ -1,4 +1,4 @@
-import { Schema, Types } from "mongoose";
+import mongoose, { Schema, Types, Model, Document } from "mongoose";
 import Person from "./Person";
 import type { IDriver } from "@/types";
 
@@ -12,6 +12,9 @@ const driverSchema = new Schema<DriverDocument>({
   assignedBus: { type: Schema.Types.ObjectId, ref: "Bus" },
 });
 
-const Driver = Person.discriminators?.driver || Person.discriminator("driver", driverSchema);
+const Driver: Model<any> = 
+  (mongoose.models.driver as Model<any>) || 
+  (Person.discriminators?.driver as Model<any>) || 
+  Person.discriminator("driver", driverSchema);
 
 export default Driver;

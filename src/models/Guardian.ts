@@ -1,4 +1,4 @@
-import { Schema, Types, Model, Document } from "mongoose";
+import mongoose, { Schema, Types, Model } from "mongoose";
 import Person, { PersonDocument } from "./Person";
 import type { IGuardian } from "@/types";
 
@@ -24,8 +24,9 @@ const GuardianSchema = new Schema<GuardianDocument>({
 
 GuardianSchema.index({ students: 1 });
 
-const Guardian: Model<GuardianDocument> =
-  (Person.discriminators?.["Guardian"] as Model<GuardianDocument>) ||
-  Person.discriminator<GuardianDocument>("Guardian", GuardianSchema);
+const Guardian: Model<any> =
+  (mongoose.models.parent as Model<any>) ||
+  (Person.discriminators?.parent as Model<any>) ||
+  Person.discriminator<GuardianDocument>("parent", GuardianSchema);
 
 export default Guardian;

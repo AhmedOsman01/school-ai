@@ -1,4 +1,4 @@
-import { Schema, Types, Model, Document } from "mongoose";
+import mongoose, { Schema, Types, Model } from "mongoose";
 import Person, { PersonDocument } from "./Person";
 import type { IStaff } from "@/types";
 
@@ -32,8 +32,9 @@ const StaffSchema = new Schema<StaffDocument>({
 
 StaffSchema.index({ department: 1, position: 1 });
 
-const Staff: Model<StaffDocument> =
-  (Person.discriminators?.["Staff"] as Model<StaffDocument>) ||
-  Person.discriminator<StaffDocument>("Staff", StaffSchema);
+const Staff: Model<any> = 
+  (mongoose.models.staff as Model<any>) || 
+  (Person.discriminators?.staff as Model<any>) || 
+  Person.discriminator("staff", StaffSchema);
 
 export default Staff;
