@@ -56,3 +56,8 @@ export { default as DailyMenu } from "./DailyMenu";
 
 // Communication
 export { default as Announcement } from "./Announcement";
+
+// HR & Payroll
+export { default as StaffContract } from "./StaffContract";
+export { default as Payslip } from "./Payslip";
+export { default as LeaveRequest } from "./LeaveRequest";
