@@ -22,8 +22,6 @@ const GuardianSchema = new Schema<GuardianDocument>({
   },
 });
 
-GuardianSchema.index({ students: 1 });
-
 const Guardian: Model<any> =
   (mongoose.models.parent as Model<any>) ||
   (Person.discriminators?.parent as Model<any>) ||
