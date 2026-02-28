@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/Card";
 
 export default async function Page() {
     const session = await auth();
@@ -7,12 +8,14 @@ export default async function Page() {
 
     return (
         <div className="space-y-6" dir="rtl">
-            <h1 className="text-2xl font-bold text-gray-900">إدارة الحافلات</h1>
-            <div className="bg-white p-12 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center">
-                <span className="text-6xl mb-4">🚌</span>
-                <h2 className="text-xl font-bold text-gray-800 mb-2">قيد التطوير</h2>
-                <p className="text-gray-500 max-w-md">نظام تتبع الحافلات المدرسية قيد العمل.</p>
-            </div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">إدارة الحافلات</h1>
+            <Card>
+                <CardContent className="flex flex-col items-center justify-center text-center p-12">
+                    <span className="text-6xl mb-4">🚌</span>
+                    <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">قيد التطوير</h2>
+                    <p className="text-slate-500 dark:text-slate-400 max-w-md">نظام تتبع الحافلات المدرسية قيد العمل.</p>
+                </CardContent>
+            </Card>
         </div>
     );
 }

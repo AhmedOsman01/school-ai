@@ -439,6 +439,31 @@ export interface IStudentTermOverallSummary {
   calculatedAt: Date;
 }
 
+export interface ISubjectResult {
+  subject: Types.ObjectId;
+  examAverage: number;
+  assignmentAverage: number;
+  finalGrade: number;
+  gradeLetter: GradeLetter;
+}
+
+export interface ITermSummary {
+  _id: Types.ObjectId;
+  student: Types.ObjectId;
+  term: Types.ObjectId;
+  academicYear: Types.ObjectId;
+  classGroup: Types.ObjectId;
+  subjectResults: ISubjectResult[];
+  gpa: number;
+  rank?: number;
+  totalStudents?: number;
+  teacherRemarks?: string;
+  adminRemarks?: string;
+  isPublished: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 // ─── Financial Interfaces ───────────────────
 
 export interface IFeeStructure {

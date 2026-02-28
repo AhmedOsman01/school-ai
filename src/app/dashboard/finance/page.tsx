@@ -1,8 +1,9 @@
 import { auth } from "@/lib/auth";
-import { Invoice, Student } from "@/models";
+import { Invoice } from "@/models";
 import connectDB from "@/lib/db";
 import Link from "next/link";
 import { format } from "date-fns";
+import type { IStudent } from "@/types";
 
 export default async function FinancePage() {
     const session = await auth();
@@ -13,7 +14,7 @@ export default async function FinancePage() {
     // Find invoices (if parent, show only for their children; if student, show their own)
     let query = {};
     if (session.user.role === "parent") {
-        const parent = await Person.findById(session.user.personId);
+        await Person.findById(session.user.personId);
         // Logic to find students linked to this parent...
     } else if (session.user.role === "student") {
         query = { student: session.user.personId };
@@ -77,15 +78,15 @@ export default async function FinancePage() {
                             <tr key={inv._id.toString()} className="hover:bg-blue-50/20 transition-colors">
                                 <td className="p-4 font-mono font-bold text-blue-600">{inv.invoiceNumber}</td>
                                 <td className="p-4">
-                                    <div className="font-bold text-gray-800">{inv.student.fullNameAr}</div>
-                                    <div className="text-xs text-gray-400">{inv.student.studentCode}</div>
+                                    <div className="font-bold text-gray-800">{(inv.student as unknown as IStudent).fullNameAr}</div>
+                                    <div className="text-xs text-gray-400">{(inv.student as unknown as IStudent).studentCode}</div>
                                 </td>
                                 <td className="p-4 font-bold">{inv.total.toLocaleString()} ج.م</td>
                                 <td className="p-4 font-bold text-red-500">{inv.balanceDue.toLocaleString()} ج.م</td>
                                 <td className="p-4 text-sm text-gray-500">{format(new Date(inv.dueDate), 'yyyy/MM/dd')}</td>
                                 <td className="p-4">
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${inv.status === 'paid' ? 'bg-green-100 text-green-700' :
-                                            inv.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
+                                        inv.status === 'overdue' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'
                                         }`}>
                                         {inv.status === 'paid' ? 'نسددت' : inv.status === 'overdue' ? 'متأخرة' : 'قيد الانتظار'}
                                     </span>

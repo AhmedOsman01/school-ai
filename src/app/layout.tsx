@@ -1,8 +1,16 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
+import { Inter, Outfit, Noto_Kufi_Arabic } from "next/font/google";
 import { Providers } from "@/components/Providers";
 import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+const notoKufiArabic = Noto_Kufi_Arabic({
+  subsets: ["arabic"],
+  variable: "--font-noto-kufi",
+});
 
 export const metadata: Metadata = {
   title: "EduFlow Egypt | نظام إدارة المدارس",
@@ -36,13 +44,7 @@ export default async function RootLayout({
 
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Kufi+Arabic:wght@300;400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body className="font-sans antialiased">
+      <body className={`${inter.variable} ${outfit.variable} ${notoKufiArabic.variable} font-sans antialiased`}>
         <NextIntlClientProvider messages={messages}>
           <Providers>
             {children}
@@ -52,3 +54,4 @@ export default async function RootLayout({
     </html>
   );
 }
+

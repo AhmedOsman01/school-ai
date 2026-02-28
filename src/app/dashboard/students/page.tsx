@@ -4,6 +4,10 @@ import connectDB from "@/lib/db";
 import { Student } from "@/models";
 import { getTranslations } from "next-intl/server";
 import Link from "next/link";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Plus, Edit2, Trash2 } from "lucide-react";
 
 export default async function StudentsPage() {
     const session = await auth();
@@ -21,51 +25,59 @@ export default async function StudentsPage() {
 
     return (
         <div className="space-y-6" dir="rtl">
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">{t("students")}</h1>
-                    <p className="text-sm text-gray-500">إدارة جميع الطلاب المسجلين بالمنظومة</p>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">{t("students")}</h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">إدارة جميع الطلاب المسجلين بالمنظومة</p>
                 </div>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition-colors">
-                    + إضافة طالب جديد
-                </button>
+                <Button>
+                    <Plus className="w-4 h-4 rtl:ml-2 ltr:mr-2" />
+                    إضافة طالب جديد
+                </Button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <Card>
                 <div className="overflow-x-auto">
                     <table className="w-full text-right border-collapse">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100">
-                                <th className="px-6 py-4 font-bold text-gray-700">كود الطالب</th>
-                                <th className="px-6 py-4 font-bold text-gray-700">الاسم الكامل</th>
-                                <th className="px-6 py-4 font-bold text-gray-700">الصف</th>
-                                <th className="px-6 py-4 font-bold text-gray-700">الفصل</th>
-                                <th className="px-6 py-4 font-bold text-gray-700">الحالة</th>
-                                <th className="px-6 py-4 font-bold text-gray-700 text-center">الإجراءات</th>
+                            <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">كود الطالب</th>
+                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">الاسم الكامل</th>
+                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">الصف</th>
+                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">الفصل</th>
+                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300">الحالة</th>
+                                <th className="px-6 py-4 text-sm font-semibold text-slate-600 dark:text-slate-300 text-center">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody>
                             {students.map((student) => (
-                                <tr key={student._id.toString()} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-4 font-mono text-sm text-blue-600">{student.studentCode}</td>
-                                    <td className="px-6 py-4 font-bold text-gray-900">{student.fullNameAr}</td>
-                                    <td className="px-6 py-4 text-gray-600">{student.currentGradeLevel?.nameAr || "—"}</td>
-                                    <td className="px-6 py-4 text-gray-600">{student.classGroup?.nameAr || "—"}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`px-2 py-1 rounded-full text-xs font-bold ${student.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                                            }`}>
+                                <tr key={student._id.toString()} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                    <td className="px-6 py-3 font-mono text-sm text-indigo-600 dark:text-indigo-400 font-medium">{student.studentCode}</td>
+                                    <td className="px-6 py-3 font-semibold text-slate-900 dark:text-white">{student.fullNameAr}</td>
+                                    <td className="px-6 py-3 text-sm text-slate-600 dark:text-slate-400">{student.currentGradeLevel?.nameAr || "—"}</td>
+                                    <td className="px-6 py-3 text-sm text-slate-600 dark:text-slate-400">{student.classGroup?.nameAr || "—"}</td>
+                                    <td className="px-6 py-3">
+                                        <Badge variant={student.status === "active" ? "success" : "danger"}>
                                             {student.status === "active" ? "نشط" : "غير نشط"}
-                                        </span>
+                                        </Badge>
                                     </td>
-                                    <td className="px-6 py-4 text-center space-x-2 space-x-reverse">
-                                        <Link href={`/dashboard/students/${student._id}`} className="text-blue-600 hover:text-blue-800 font-bold ml-2">تعديل</Link>
-                                        <button className="text-red-600 hover:text-red-800 font-bold">حذف</button>
+                                    <td className="px-6 py-3 text-center">
+                                        <div className="flex items-center justify-center gap-2">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400" asChild>
+                                                <Link href={`/dashboard/students/${student._id}`}>
+                                                    <Edit2 className="w-4 h-4" />
+                                                </Link>
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700 dark:text-rose-400">
+                                                <Trash2 className="w-4 h-4" />
+                                            </Button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
                             {students.length === 0 && (
                                 <tr>
-                                    <td colSpan={6} className="px-6 py-10 text-center text-gray-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                                         لا يوجد طلاب مضافين حالياً.
                                     </td>
                                 </tr>
@@ -73,9 +85,7 @@ export default async function StudentsPage() {
                         </tbody>
                     </table>
                 </div>
-            </div>
-
-
+            </Card>
         </div>
     );
 }

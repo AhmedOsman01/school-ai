@@ -64,16 +64,20 @@ export async function saveExamResults(input: z.infer<typeof GradingSchema>) {
     for (const res of results) {
       const student = await Person.findById(res.studentId);
       if (student?.phoneWa) {
-        const { triggerWebhook } = await import("@/lib/webhooks");
-        triggerWebhook("exam-result", {
-          studentId: res.studentId,
-          studentName: student.fullNameAr,
-          guardianPhone: student.phoneWa,
-          examTitle: populatedExam.nameAr,
-          subject: populatedExam.subject.titleAr || "المادة",
-          marksObtained: res.marksObtained,
-          maxMarks: exam.maxMarks,
-          grade: res.marksObtained >= exam.maxMarks * 0.9 ? "امتياز" : "جيد"
+        const { triggerN8nWebhook } = await import("@/lib/webhooks");
+        triggerN8nWebhook("exam-result" as any, {
+          event: "exam.result",
+          timestamp: new Date().toISOString(),
+          data: {
+            studentId: res.studentId,
+            studentName: student.fullNameAr,
+            guardianPhone: student.phoneWa,
+            examTitle: populatedExam.nameAr,
+            subject: populatedExam.subject.titleAr || "المادة",
+            marksObtained: res.marksObtained,
+            maxMarks: exam.maxMarks,
+            grade: res.marksObtained >= exam.maxMarks * 0.9 ? "امتياز" : "جيد"
+          }
         });
       }
     }

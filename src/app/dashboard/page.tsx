@@ -1,6 +1,11 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { Users, GraduationCap, DollarSign, Calendar, MessageSquare, Plus, FileText, Bus } from "lucide-react";
+import Link from "next/link";
+import { RevenueChart } from "@/components/ui/RevenueChart";
+import { AttendanceChart } from "@/components/ui/AttendanceChart";
+import { Button } from "@/components/ui/Button";
 
 export default async function DashboardPage() {
     const session = await auth();
@@ -12,106 +17,150 @@ export default async function DashboardPage() {
     const t = await getTranslations("dashboard");
     const role = session.user.role;
 
+    // Quick Actions mapping based on role
+    const getQuickActions = (userRole: string) => {
+        switch (userRole) {
+            case "admin":
+                return [
+                    { label: "Add Student", icon: Plus, href: "/dashboard/students/add", color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400" },
+                    { label: "Broadcast Message", icon: MessageSquare, href: "/dashboard/announcements", color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400" },
+                    { label: "Generate Report", icon: FileText, href: "/dashboard/reports", color: "bg-amber-100 text-amber-600 dark:bg-amber-500/20 dark:text-amber-400" },
+                    { label: "Manage Transport", icon: Bus, href: "/dashboard/transport", color: "bg-sky-100 text-sky-600 dark:bg-sky-500/20 dark:text-sky-400" },
+                ];
+            default:
+                return [
+                    { label: "View Timetable", icon: Calendar, href: "/dashboard/timetable", color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-400" },
+                ];
+        }
+    };
+
+    const quickActions = getQuickActions(role as string);
+
     return (
-        <div>
+        <div className="space-y-6">
             {/* Welcome Header */}
-            <div style={{ marginBottom: "2rem" }}>
-                <h1
-                    style={{
-                        fontSize: "1.75rem",
-                        fontWeight: 700,
-                        color: "var(--text-primary)",
-                        marginBottom: "0.25rem",
-                    }}
-                >
-                    {t("welcome", { name: session.user.email?.split("@")[0] || "" })}
-                </h1>
-                <p
-                    style={{
-                        fontSize: "0.9375rem",
-                        color: "var(--text-secondary)",
-                    }}
-                >
-                    {role === "admin"
-                        ? "إدارة جميع أقسام النظام"
-                        : "عرض لوحة التحكم الخاصة بك"}
-                </p>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white capitalize mb-1">
+                        {t("welcome", { name: session.user.email?.split("@")[0] || "" })}
+                    </h1>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                        {role === "admin"
+                            ? "Here is what's happening in your school today."
+                            : "Welcome back to your dashboard."}
+                    </p>
+                </div>
+                <div className="hidden sm:flex items-center gap-2">
+                    <span className="text-sm font-medium text-slate-500">Academic Year:</span>
+                    <span className="badge badge-info ring-1 ring-inset ring-indigo-600/20">2026/2027</span>
+                </div>
             </div>
 
             {/* Stats Grid */}
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-                    gap: "1.25rem",
-                    marginBottom: "2rem",
-                }}
-            >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard
                     label={t("totalStudents")}
-                    value="—"
-                    color="#3b82f6"
-                    icon={
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-                            <path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5" />
-                        </svg>
-                    }
+                    value="1,248"
+                    trend="+12 this month"
+                    trendUp={true}
+                    color="text-indigo-600"
+                    bgColor="bg-indigo-50 dark:bg-indigo-500/10"
+                    icon={<GraduationCap className="w-6 h-6" />}
                 />
                 <StatCard
                     label={t("totalTeachers")}
-                    value="—"
-                    color="#10b981"
-                    icon={
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                        </svg>
-                    }
+                    value="94"
+                    trend="Stable"
+                    color="text-emerald-600"
+                    bgColor="bg-emerald-50 dark:bg-emerald-500/10"
+                    icon={<Users className="w-6 h-6" />}
                 />
                 <StatCard
                     label={t("activeClasses")}
-                    value="—"
-                    color="#f59e0b"
-                    icon={
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                        </svg>
-                    }
+                    value="42"
+                    trend=""
+                    color="text-amber-600"
+                    bgColor="bg-amber-50 dark:bg-amber-500/10"
+                    icon={<Calendar className="w-6 h-6" />}
                 />
                 <StatCard
                     label={t("pendingInvoices")}
-                    value="—"
-                    color="#ef4444"
-                    icon={
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                            <polyline points="14 2 14 8 20 8" />
-                            <line x1="16" y1="13" x2="8" y2="13" />
-                            <line x1="16" y1="17" x2="8" y2="17" />
-                        </svg>
-                    }
+                    value="EGP 45k"
+                    trend="12 Overdue"
+                    trendUp={false}
+                    color="text-rose-600"
+                    bgColor="bg-rose-50 dark:bg-rose-500/10"
+                    icon={<DollarSign className="w-6 h-6" />}
                 />
             </div>
 
-            {/* Placeholder content */}
-            <div
-                className="card"
-                style={{ padding: "2rem", textAlign: "center" }}
-            >
-                <p
-                    style={{
-                        fontSize: "1rem",
-                        color: "var(--text-secondary)",
-                    }}
-                >
-                    🎉 EduFlow Egypt is ready for development.
-                    <br />
-                    Connect to MongoDB and build out your modules.
-                </p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Main Content Area (Charts) */}
+                <div className="lg:col-span-2 space-y-6">
+                    {/* Revenue Chart */}
+                    <div className="card p-6 min-h-[400px]">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Revenue Overview</h3>
+                            <select className="text-sm bg-slate-50 dark:bg-slate-800 border-none rounded-lg px-3 py-1.5 font-medium text-slate-600 dark:text-slate-300 outline-none">
+                                <option>This Year</option>
+                                <option>Last Year</option>
+                            </select>
+                        </div>
+                        <RevenueChart />
+                    </div>
+
+                    {/* Attendance Chart */}
+                    <div className="card p-6 min-h-[400px]">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Student Attendance</h3>
+                            <button className="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium">View Details</button>
+                        </div>
+                        <AttendanceChart />
+                    </div>
+                </div>
+
+                {/* Sidebar Area (Quick Actions & Notifications) */}
+                <div className="space-y-6">
+                    {/* Quick Actions */}
+                    <div className="card p-5">
+                        <h3 className="text-base font-semibold text-slate-900 dark:text-white mb-4">Quick Actions</h3>
+                        <div className="grid grid-cols-2 gap-3">
+                            {quickActions.map((action, index) => (
+                                <Link
+                                    key={index}
+                                    href={action.href}
+                                    className="flex flex-col items-center justify-center p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-sm transition-all bg-white dark:bg-slate-900 group"
+                                >
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${action.color} group-hover:scale-110 transition-transform`}>
+                                        <action.icon className="w-5 h-5" />
+                                    </div>
+                                    <span className="text-xs font-medium text-slate-600 dark:text-slate-300 text-center">{action.label}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Pending Approvals / Tasks */}
+                    <div className="card p-5">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-base font-semibold text-slate-900 dark:text-white">Recent Activity</h3>
+                            <Button variant="ghost" size="sm" className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400">
+                                View All
+                            </Button>
+                        </div>
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((_, i) => (
+                                <div key={i} className="flex gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 shrink-0"></div>
+                                    <div>
+                                        <p className="text-sm font-medium text-slate-900 dark:text-white leading-tight">New student enrolled in Grade {i + 5}</p>
+                                        <p className="text-xs text-slate-500 mt-0.5">{i + 2} hours ago</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -120,62 +169,41 @@ export default async function DashboardPage() {
 function StatCard({
     label,
     value,
+    trend,
+    trendUp,
     color,
+    bgColor,
     icon,
 }: {
     label: string;
     value: string;
+    trend: string;
+    trendUp?: boolean;
     color: string;
+    bgColor: string;
     icon: React.ReactNode;
 }) {
     return (
-        <div
-            className="card card-interactive"
-            style={{ padding: "1.25rem 1.5rem" }}
-        >
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "0.75rem",
-                }}
-            >
-                <div
-                    style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: "var(--radius-lg)",
-                        background: `${color}15`,
-                        color: color,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                    }}
-                >
+        <div className="card p-5 hover:shadow-md transition-shadow">
+            <div className="flex items-start justify-between">
+                <div>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{label}</p>
+                    <p className="text-2xl font-bold text-slate-900 dark:text-white num-ar">{value}</p>
+                </div>
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${bgColor} ${color}`}>
                     {icon}
                 </div>
             </div>
-            <p
-                style={{
-                    fontSize: "1.75rem",
-                    fontWeight: 700,
-                    color: "var(--text-primary)",
-                    marginBottom: "0.25rem",
-                    fontFeatureSettings: '"tnum"',
-                }}
-            >
-                {value}
-            </p>
-            <p
-                style={{
-                    fontSize: "0.8125rem",
-                    color: "var(--text-secondary)",
-                    fontWeight: 500,
-                }}
-            >
-                {label}
-            </p>
+            {trend && (
+                <div className="mt-4 flex items-center text-xs font-medium">
+                    {trendUp !== undefined && (
+                        <span className={`mr-1 ${trendUp ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            {trendUp ? '↑' : '↓'}
+                        </span>
+                    )}
+                    <span className="text-slate-500 dark:text-slate-400">{trend}</span>
+                </div>
+            )}
         </div>
     );
 }

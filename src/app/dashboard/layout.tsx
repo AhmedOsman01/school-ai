@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ROLE_MENUS, type MenuItem } from "@/lib/menu";
 import type { UserRole } from "@/types";
+import { CommandPalette } from "@/components/ui/CommandPalette";
 
 // ─── Icon Map (lightweight SVG icons) ───────
 
@@ -131,6 +132,8 @@ function SidebarItem({
   );
 }
 
+
+
 // ─── Dashboard Layout ───────────────────────
 
 export default function DashboardLayout({
@@ -140,19 +143,33 @@ export default function DashboardLayout({
 }) {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const t = useTranslations();
   const tApp = useTranslations("app");
   const tAuth = useTranslations("auth");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   const role = (session?.user?.role || "student") as UserRole;
   const menuItems = ROLE_MENUS[role] || ROLE_MENUS.student;
 
   // Close mobile sidebar on route change
   useEffect(() => {
-    setMobileOpen(false);
+    // We use a timeout to avoid synchronous state updates during render phase
+    const timer = setTimeout(() => setMobileOpen(false), 0);
+    return () => clearTimeout(timer);
   }, [pathname]);
+
+  // Command Palette Keyboard Shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   return (
     <div className="dashboard-layout">
@@ -292,25 +309,49 @@ export default function DashboardLayout({
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Open menu"
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <line x1="3" y1="12" x2="21" y2="12" />
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <line x1="3" y1="18" x2="21" y2="18" />
               </svg>
             </button>
+            <div className="topbar-breadcrumbs hidden sm:flex items-center gap-2 text-sm text-slate-500 font-medium font-outfit">
+              <span>{tApp("name")}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="rtl:rotate-180">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              <span className="text-slate-800 dark:text-slate-200 capitalize">
+                {pathname.split("/").filter(Boolean).pop() || "Dashboard"}
+              </span>
+            </div>
           </div>
 
           <div className="topbar-end">
+            {/* Global Search / Command Palette Trigger */}
+            <button
+              onClick={() => setIsCommandPaletteOpen(true)}
+              className="topbar-icon-btn hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-indigo-600 transition-colors border border-slate-200 dark:border-slate-700"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <span className="text-xs">Search... / Ctrl+K</span>
+            </button>
+
+            {/* Notifications */}
+            <button className="topbar-icon-btn relative">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+              </svg>
+              <span className="absolute top-0 right-0 w-2 h-2 bg-rose-500 rounded-full border-2 border-white dark:border-slate-900"></span>
+            </button>
+
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1 hidden sm:block"></div>
+
             {/* User Info */}
             <div className="topbar-user">
-              <div className="topbar-avatar">
+              <div className="topbar-avatar shadow-sm">
                 {session?.user?.email?.charAt(0).toUpperCase() || "U"}
               </div>
               <div className="topbar-user-info">
@@ -330,6 +371,11 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+      />
 
       <style jsx>{`
         .dashboard-layout {
